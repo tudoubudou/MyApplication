@@ -46,6 +46,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textview = (TextView)findViewById(R.id.text);
+        findViewById(R.id.myview).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v instanceof MyView) {
+                    boolean now = ((MyView)v).isDrawSwitch();
+                    ((MyView) v).setDraw(!now);
+                }
+            }
+        });
         button = (Button)findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override

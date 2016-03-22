@@ -14,6 +14,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
             <com.example.michael.myapplication.MyView
+                android:id="@+id/myview"
                 android:layout_width="match_parent"
                 android:layout_height="600dp" />
 

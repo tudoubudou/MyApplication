@@ -31,8 +31,9 @@ public class MyView extends View {
     float[] linear_acceleration = new float[3];
     double[] average = new double[3];
     double[] history = new double[3];
-    double[] markPointHistory = new double[] {0,0,0,0,0,0,0,0,0,0};
-    int breakPoint = 0;
+    double[] markPointHistory = new double[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int max = 0;
+    boolean drawSwitch = true;
 
     private SensorEventListener sensorEventListener = new SensorEventListener() {
 
@@ -85,7 +86,10 @@ public class MyView extends View {
                     }
                 }
                 caculate();
-                MyView.this.invalidate();
+                if (drawSwitch) {
+                    max = 0;
+                    MyView.this.invalidate();
+                }
                 android.util.Log.d("gzw", "sh=" + screenSize.y / 2 + (int) result * 5 + " x=" + step);
             }
         }
@@ -117,11 +121,13 @@ public class MyView extends View {
         varience = Math.sqrt(varience / markPointHistory.length);
         int breakPoint = 0;
         for (int i = markPointHistory.length - 1; i >= 0; i--) {
-            if (varience > 5 && markPointHistory[i] - average > varience) {
+            if (varience > 5 && Math.abs(markPointHistory[i] - average) > varience) {
                 breakPoint ++;
             }
         }
-        android.util.Log.d("gzw", "va=" + varience + " avg=" + average + " breakPoint=" + breakPoint);
+
+        max = breakPoint > max ? breakPoint: max;
+        android.util.Log.e("gzw", "va=" + varience + " avg=" + average + " max=" + max);
     }
     public MyView(Context context) {
         super(context);
@@ -154,6 +160,13 @@ public class MyView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(bufferBitmap, 0, 0, new Paint());//在双缓冲中绘图，将自定义缓冲绘制到屏幕上
+    }
+    public void setDraw(boolean draw) {
+        drawSwitch = draw;
+    }
+
+    public boolean isDrawSwitch() {
+        return drawSwitch;
     }
 
     public void drawOnBuffer(int x,int y) {
