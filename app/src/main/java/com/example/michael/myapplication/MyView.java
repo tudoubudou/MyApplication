@@ -27,6 +27,13 @@ public class MyView extends View {
     Random rand = new Random();
     SensorManager sm;
     int step = 0;
+    float[] gravity = new float[3];
+    float[] linear_acceleration = new float[3];
+    double[] average = new double[3];
+    double[] history = new double[3];
+    double[] markPointHistory = new double[] {0,0,0,0,0,0,0,0,0,0};
+    int breakPoint = 0;
+
     private SensorEventListener sensorEventListener = new SensorEventListener() {
 
         @Override
@@ -34,17 +41,52 @@ public class MyView extends View {
             int sensorType = event.sensor.getType();
             float[] values = event.values;
             if(sensorType == Sensor.TYPE_ACCELEROMETER){
-                double sh = Math.sqrt(Math.pow(values[0], 2) + Math.pow(values[1], 2) + Math.pow(values[2], 2));
-                android.util.Log.d("gzw", "sh=" + screenSize.y /2 + (int)sh);
+                final float alpha = 0.8f;
+
+                // 用低通滤波器分离出重力加速度
+                gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+                gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+                gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+                // 用高通滤波器剔除重力干扰
+                linear_acceleration[0] = event.values[0] - gravity[0];
+                linear_acceleration[1] = event.values[1] - gravity[1];
+                linear_acceleration[2] = event.values[2] - gravity[2];
+
+
+//                double sh = Math.sqrt(Math.pow(values[0], 2) + Math.pow(values[1], 2) + Math.pow(values[2], 2));
+                double sh = Math.sqrt(Math.pow(linear_acceleration[0], 2) + Math.pow(linear_acceleration[1], 2) + Math.pow(linear_acceleration[2], 2));
+                average[2] = average[1];
+                average[1] = average[0];
+                average[0] = sh;
+                double result = (average[0] + average[1] + average[2] ) /3;
+                android.util.Log.d("gzw", "sh=" + screenSize.y /2 + (int)result);
+                history[2] = history[1];
+                history[1] = history[0];
+                history[0] = result;
                 step += 10;
                 if (step > screenSize.x) {
                     step = 0;
                     MyView.this.clear();
                 }
-                drawOnBuffer(step,screenSize.y /2 + (int)sh * 10);
+                if (history[1] > history[2]) {
+                    if (history[0] - history[1] <  0) {
+                        recordMarkPoint((int)result);
+                        drawOnBufferWithRed(step,screenSize.y /2 + (int)result * 5);
+                    } else {
+                        drawOnBuffer(step,screenSize.y /2 + (int)result * 5);
+                    }
+                } else {
+                    if (history[0] - history[1] > 0) {
+                        recordMarkPoint((int)result);
+                        drawOnBufferWithRed(step,screenSize.y /2 + (int)result * 5);
+                    } else {
+                        drawOnBuffer(step,screenSize.y /2 + (int)result * 5);
+                    }
+                }
+                caculate();
                 MyView.this.invalidate();
-                android.util.Log.d("gzw", "sh=" + screenSize.y / 2 + (int) sh * 10 + " x=" + step);
-
+                android.util.Log.d("gzw", "sh=" + screenSize.y / 2 + (int) result * 5 + " x=" + step);
             }
         }
 
@@ -53,6 +95,34 @@ public class MyView extends View {
 
         }
     };
+    private void recordMarkPoint(int result) {
+        for (int i = markPointHistory.length - 1; i >= 0;i--) {
+            if (i == 0) {
+                markPointHistory[0] = result;
+            } else {
+                markPointHistory[i] = markPointHistory[i-1];
+            }
+        }
+    }
+    private void caculate() {
+        double average = 0;
+        for (int i = markPointHistory.length - 1; i >= 0; i--) {
+            average += markPointHistory[i];
+        }
+        average = average / markPointHistory.length;
+        double varience = 0;
+        for (int i = markPointHistory.length - 1; i >= 0; i--) {
+            varience += Math.pow(markPointHistory[i] - average,2);
+        }
+        varience = Math.sqrt(varience / markPointHistory.length);
+        int breakPoint = 0;
+        for (int i = markPointHistory.length - 1; i >= 0; i--) {
+            if (varience > 5 && markPointHistory[i] - average > varience) {
+                breakPoint ++;
+            }
+        }
+        android.util.Log.d("gzw", "va=" + varience + " avg=" + average + " breakPoint=" + breakPoint);
+    }
     public MyView(Context context) {
         super(context);
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
@@ -77,7 +147,7 @@ public class MyView extends View {
         paint.setColor(Color.BLUE);
         bufferCanvas.drawColor(Color.WHITE);
         sm = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        sm.registerListener(sensorEventListener, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
+        sm.registerListener(sensorEventListener, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
@@ -92,16 +162,13 @@ public class MyView extends View {
         paint.setColor(Color.BLUE);
         bufferCanvas.drawCircle(x, y, 5, paint);
 
-//        for(int n=0;n<500;n++){                     //随机在绘图画布上绘制500个圆
-//            int r=rand.nextInt(256);
-//            int g=rand.nextInt(256);
-//            int b=rand.nextInt(256);
-//            paint.setColor(Color.rgb(r, g, b));
-//            int x=rand.nextInt(bufferCanvas.getWidth());
-//            int y=rand.nextInt(bufferCanvas.getHeight());
-//            int radius=rand.nextInt(100)+20;
-//            bufferCanvas.drawCircle(x, y, radius, paint);
-//        }
+    }
+    public void drawOnBufferWithRed(int x,int y) {
+        Paint paint=new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(Color.RED);
+        bufferCanvas.drawCircle(x, y, 5, paint);
+
     }
     public void clear() {
         Paint paint=new Paint();
