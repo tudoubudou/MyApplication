@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- LOCKER ACTIVITY -->
+    <color name="locker_overlay">#48333333</color>
+
+    <color name="item_divider">#ffe7e7e7</color>
+
+    <color name="item_section">#ccf2f2f2</color>
+
+    <color name="window_background">#fff8f8f8</color>
+</resources>
