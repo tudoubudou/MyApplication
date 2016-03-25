@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,11 +51,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (v instanceof MyView) {
-                    boolean now = ((MyView)v).isDrawSwitch();
+                    boolean now = ((MyView) v).isDrawSwitch();
                     ((MyView) v).setDraw(!now);
                 }
             }
         });
+        ImageView image =(ImageView) findViewById(R.id.image);
+        image.setImageDrawable(getDrawable(R.drawable.skin_pattern_selected_wallpaper));
         button = (Button)findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override

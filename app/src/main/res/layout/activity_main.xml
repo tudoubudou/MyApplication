@@ -16,7 +16,8 @@
             <com.example.michael.myapplication.MyView
                 android:id="@+id/myview"
                 android:layout_width="match_parent"
-                android:layout_height="600dp" />
+                android:layout_height="600dp"
+                android:visibility="gone"/>
 
             <TextView android:id="@+id/text" android:text="@string/hello_world" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -26,7 +27,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"/>
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="centerInside"
+                android:id="@+id/image"/>
         </LinearLayout>
+
     </ScrollView>
 
 </RelativeLayout>
