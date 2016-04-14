@@ -1,13 +1,6 @@
 package com.example.michael.myapplication;
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
@@ -27,8 +20,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.view.ViewHelper;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -36,6 +32,8 @@ import ru.mail.R;
 
 
 public class MainActivity extends AppCompatActivity {
+    private com.nineoldandroids.animation.ObjectAnimator mAnimator;
+
     TextView  textview;
     Button button;
     HandlerThread myThread = new HandlerThread("my");
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         ImageView image =(ImageView) findViewById(R.id.image);
-        image.setImageDrawable(getDrawable(R.drawable.skin_pattern_selected_wallpaper));
+        image.setImageDrawable(getResources().getDrawable(R.drawable.skin_pattern_selected_wallpaper));
         button = (Button)findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                         button.animate().translationX(0f).translationY(0f).alpha(1f).scaleX(1f).scaleY(1f).rotation(-360f);
                     }
                 });*/
-                button.animate().alpha(0f).scaleX(10f).scaleY(10f).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
+                /*button.animate().alpha(0f).scaleX(10f).scaleY(10f).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
                     @Override
                     public void run() {
 //                        button.animate().alpha(1rf).scaleX(1f).scaleY(1f);
@@ -85,7 +83,8 @@ public class MainActivity extends AppCompatActivity {
                         button.setScaleX(1f);
                         button.setScaleY(1f);
                     }
-                });
+                });*/
+                dismissButtonAnim(button);
             }
         });
         myThread.start();
@@ -99,6 +98,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+    private void dismissButtonAnim(View target) {
+        if (mAnimator != null && mAnimator.isRunning()) {
+            return;
+        }
+        mAnimator = ObjectAnimator
+                .ofFloat(target, "translationY", target.getHeight())
+                .setDuration(250);
+        mAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                ViewHelper.setTranslationY(button,0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        mAnimator.start();
     }
 
     @Override
