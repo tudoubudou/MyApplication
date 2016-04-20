@@ -13,11 +13,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <com.example.michael.myapplication.MyView
+            <!--<com.example.michael.myapplication.MyView
                 android:id="@+id/myview"
                 android:layout_width="match_parent"
                 android:layout_height="600dp"
-                android:visibility="visible"/>
+                android:visibility="visible"/>-->
 
             <TextView android:id="@+id/text" android:text="@string/hello_world" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

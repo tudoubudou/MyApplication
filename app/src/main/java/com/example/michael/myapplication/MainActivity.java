@@ -1,13 +1,18 @@
 package com.example.michael.myapplication;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -28,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import butterknife.OnClick;
 import ru.mail.R;
 
 
@@ -45,15 +51,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textview = (TextView)findViewById(R.id.text);
-        findViewById(R.id.myview).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v instanceof MyView) {
-                    boolean now = ((MyView) v).isDrawSwitch();
-                    ((MyView) v).setDraw(!now);
-                }
-            }
-        });
+
         ImageView image =(ImageView) findViewById(R.id.image);
         image.setImageDrawable(getResources().getDrawable(R.drawable.skin_pattern_selected_wallpaper));
         button = (Button)findViewById(R.id.button);
@@ -68,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
 //                        textview.setText(s + "\n gzw2 " + Thread.currentThread().getId() + Thread.currentThread().getName());
                     }
                 }.start();
-                Toast.makeText(MainActivity.this, "in act = " + Thread.currentThread().getId(), Toast.LENGTH_SHORT).show();
                 /*button.animate().translationX(400f).translationY(-400f).alpha(0f).rotation(360f).scaleX(0f).scaleY(0f).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
                     @Override
                     public void run() {
@@ -85,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });*/
                 dismissButtonAnim(button);
+//                MainActivity.this.sendBroadcast(new Intent("com.ali.mytest"));
+                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:0000"));
+                PackageManager pm = MainActivity.this.getPackageManager();
+                ResolveInfo resolveInfo = pm.resolveActivity(intent, 0);
+                String pkgname = resolveInfo.activityInfo.applicationInfo.packageName;
+                String label = resolveInfo.loadLabel(pm).toString();
+                Toast.makeText(MainActivity.this, "pkgname = " + pkgname + " label=" + label, Toast.LENGTH_SHORT).show();
+
+
+
             }
         });
         myThread.start();
@@ -129,6 +136,14 @@ public class MainActivity extends AppCompatActivity {
         });
         mAnimator.start();
     }
+    /*@Nullable
+    @OnClick(R.id.myview)
+    void click(View v) {
+        if (v instanceof MyView) {
+            boolean now = ((MyView) v).isDrawSwitch();
+            ((MyView) v).setDraw(!now);
+        }
+    }*/
 
     @Override
     protected void onResume() {
